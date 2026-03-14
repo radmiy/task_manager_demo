@@ -8,12 +8,21 @@ import org.springframework.http.HttpStatus;
 @RequiredArgsConstructor
 public enum ErrorMessage {
 
-    IS_NULL(HttpStatus.BAD_REQUEST, "Task is empty"),
     NULL_ID(HttpStatus.BAD_REQUEST, "ID cannot be null"),
-    NEGATIVE_ID(HttpStatus.BAD_REQUEST, "ID cannot be 0 or negative"),
+
+    IS_NULL(HttpStatus.BAD_REQUEST, "Task is empty"),
+    TASK_NOT_EXIST(HttpStatus.NOT_FOUND, "Task id=%s does not exist"),
+    TASK_IS_NOT_FOR_USER(HttpStatus.NOT_FOUND, "Task id=%s does not belong to user=%s"),
+
+    PASSWORD_NULL(HttpStatus.BAD_REQUEST, "User password cannot be null"),
+    USERNAME_NULL(HttpStatus.BAD_REQUEST, "Username cannot be null"),
+
+    USER_NOT_EXIST(HttpStatus.NOT_FOUND, "User with username: %s does not exist"),
+    USER_EXIST(HttpStatus.BAD_REQUEST, "User with username: %s exists"),
+    EMAIL_NULL(HttpStatus.BAD_REQUEST, "User email cannot be null"),
+    EMAIL_EXIST(HttpStatus.BAD_REQUEST, "User with email: %s exists");
 
 
-    TASK_NOT_EXIST(HttpStatus.NOT_FOUND, "Task id=%s does not exist");
 
     private final HttpStatus status;
     private final String message;

@@ -1,0 +1,59 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1.1-insert-admin-user
+      author: radmiy
+      comment: "Insert admin user for development/testing"
+      changes:
+        - insert:
+            tableName: users
+            columns:
+              - column:
+                  name: id
+                  valueComputed: "random_uuid()"
+              - column:
+                  name: username
+                  value: "admin"
+              - column:
+                  name: email
+                  value: "admin@example.com"
+              - column:
+                  name: password
+                  value: "$2a$12$7qCfvVGTXhNOQRHfPn2vce2PgmKQ91D0kAU.W/wN6QnQX.QIRGP2O" # пароль: admin
+              - column:
+                  name: role
+                  value: "ADMIN"
+
+  - changeSet:
+      id: 1.1-insert-admin-task
+      author: radmiy
+      changes:
+        - insert:
+            tableName: tasks
+            columns:
+              - column:
+                  name: id
+                  valueComputed: "random_uuid()"
+              - column:
+                  name: title
+                  value: "Настроить окружение"
+              - column:
+                  name: description
+                  value: "Установить JDK, Docker и настроить БД"
+              - column:
+                  name: status
+                  value: "TODO"
+              - column:
+                  name: priority
+                  value: "HIGH"
+              - column:
+                  name: author_id
+                  valueComputed: "(SELECT id FROM users WHERE username = 'admin')"
+              - column:
+                  name: assignee_id
+                  valueComputed: "(SELECT id FROM users WHERE username = 'admin')"
+              - column:
+                  name: created_at
+                  valueComputed: "CURRENT_TIMESTAMP"
+              - column:
+                  name: updated_at
+                  valueComputed: "CURRENT_TIMESTAMP"

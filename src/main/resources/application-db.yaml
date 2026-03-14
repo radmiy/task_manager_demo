@@ -1,0 +1,25 @@
+spring:
+  datasource:
+#    url: ${DATASOURCE_URL:jdbc:postgresql://postgres:5432/payment-db}
+#    username: ${DATASOURCE_USERNAME:admin}
+#    password: ${DATASOURCE_PASSWORD:secret}
+#    driver-class-name: org.postgresql.Driver
+    url: jdbc:h2:mem:tasksdb;DB_CLOSE_DELAY=-1 # База в оперативной памяти
+    driverClassName: org.h2.Driver
+    username: ${DATASOURCE_USERNAME:admin}
+    password: ${DATASOURCE_PASSWORD:secret}
+    changeLogFile: db/changelog/db.changelog-master.yaml
+
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.H2Dialect
+
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/db.changelog-master.yaml

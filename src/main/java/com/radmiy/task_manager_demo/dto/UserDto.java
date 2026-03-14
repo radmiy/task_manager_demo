@@ -1,5 +1,6 @@
 package com.radmiy.task_manager_demo.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,8 +17,11 @@ import java.util.UUID;
 public class UserDto {
 
     private UUID id;
-    private String userName;
+    private String username;
     private String email;
+
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
+
     private String role;
 }

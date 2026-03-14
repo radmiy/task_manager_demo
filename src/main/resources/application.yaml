@@ -1,0 +1,50 @@
+spring:
+  application:
+    name: task_manager_demo
+
+  profiles:
+    active: db
+
+application:
+  security:
+    jwt:
+      secret-key: ${JWT_SECRET_KEY:ZmF6ZWRldi1zZWNyZXQta2V5LWZvci1qd3QtYXV0aGVudGljYXRpb24tMjAyNA==}
+
+logging:
+  file:
+    name: ./logs/application.log
+  level:
+    com.radmiy: DEBUG
+    org.springframework.web: INFO
+    org.springframework.data: INFO
+    org.springframework.security: INFO
+  pattern:
+    console: "%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){green} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+  logback:
+    rollingpolicy:
+      file-name-pattern: "${LOG_FILE}.%d{yyyy-MM-dd}.%i.gz"
+      max-file-size: 500MB
+      max-history: 20
+      clean-history-on-start: false
+
+management:
+  server:
+    port: 8081
+  endpoints:
+    web:
+      exposure:
+        include: "health,info,liquibase,beans,metrics,env,loggers"
+  endpoint:
+    health:
+      show-details: always
+      probes:
+        enabled: true
+  tracing:
+    sampling:
+      probability: 1.0
+    propagation:
+      type: w3c,b3
+
+server:
+  port: ${SERVER_PORT:8080} #8080

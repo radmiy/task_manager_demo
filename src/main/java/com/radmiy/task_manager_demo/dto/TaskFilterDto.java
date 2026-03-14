@@ -11,6 +11,6 @@ import java.util.UUID;
 public class TaskFilterDto {
 
     private TaskStatus status;
-    private UUID assigneeId;
-    private UUID authorId;
+    private UUID author;
+    private UUID assignee;
 }

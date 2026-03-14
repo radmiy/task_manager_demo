@@ -10,15 +10,18 @@ public class TaskFilterFactory {
         Specification<Task> spec = Specification.unrestricted();
 
         if (filterDto.getStatus() != null) {
-            spec = spec.and((root, query, cb) -> cb.equal(root.get("status"), filterDto.getStatus()));
+            spec = spec.and((root, query, cb) ->
+                    cb.equal(root.get("status"), filterDto.getStatus()));
         }
 
-        if (filterDto.getAssigneeId() != null) {
-            spec = spec.and((root, query, cb) -> cb.equal(root.get("assignee_id"), filterDto.getAssigneeId()));
+        if (filterDto.getAuthor() != null) {
+            spec = spec.and((root, query, cb) ->
+                    cb.equal(root.get("author").get("id"), filterDto.getAuthor()));
         }
 
-        if (filterDto.getAuthorId() != null) {
-            spec = spec.and((root, query, cb) -> cb.equal(root.get("assignee_id"), filterDto.getAssigneeId()));
+        if (filterDto.getAssignee() != null) {
+            spec = spec.and((root, query, cb) ->
+                    cb.equal(root.get("assignee").get("id"), filterDto.getAssignee()));
         }
 
         return spec;
