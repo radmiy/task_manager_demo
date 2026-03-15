@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 @Component
-public class TaskMapperDecorator implements TaskMapper {
+public abstract class TaskMapperDecorator implements TaskMapper {
 
     @Autowired
     @Qualifier("delegate")
