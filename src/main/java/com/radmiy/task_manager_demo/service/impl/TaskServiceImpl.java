@@ -1,8 +1,8 @@
 package com.radmiy.task_manager_demo.service.impl;
 
-import com.radmiy.task_manager_demo.dto.TaskDto;
+import com.radmiy.task_manager_demo.dto.TaskRequestDto;
 import com.radmiy.task_manager_demo.dto.TaskFilterDto;
-import com.radmiy.task_manager_demo.exception.ErrorMessage;
+import com.radmiy.task_manager_demo.dto.TaskResponseDto;
 import com.radmiy.task_manager_demo.exception.ServiceException;
 import com.radmiy.task_manager_demo.mapper.TaskMapper;
 import com.radmiy.task_manager_demo.repository.TaskRepository;
@@ -15,7 +15,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,7 +25,6 @@ import java.util.UUID;
 
 import static com.radmiy.task_manager_demo.exception.ErrorMessage.IS_NULL;
 import static com.radmiy.task_manager_demo.exception.ErrorMessage.NULL_ID;
-import static com.radmiy.task_manager_demo.exception.ErrorMessage.TASK_IS_NOT_FOR_USER;
 import static com.radmiy.task_manager_demo.exception.ErrorMessage.TASK_NOT_EXIST;
 
 @Slf4j
@@ -39,17 +37,25 @@ public class TaskServiceImpl implements TaskService {
 
     @Transactional
     @Override
-    public TaskDto create(TaskDto dto) {
+    public TaskResponseDto create(TaskRequestDto dto) {
         checkDto(dto);
 
-        Task task = taskMapper.toEntity(dto);
-        Task saveTask = taskRepository.save(task);
+        User currentUser = (User) SecurityContextHolder.getContext()
+                .getAuthentication().getPrincipal();
+        dto.setAuthor(currentUser.getId());
 
+        Task saveTask = taskRepository.saveAndFlush(taskMapper.toEntity(dto));
         return taskMapper.toDto(saveTask);
     }
 
+    private static void checkDto(TaskRequestDto dto) {
+        if (dto == null) {
+            throw new ServiceException(IS_NULL);
+        }
+    }
+
     @Override
-    public TaskDto getTaskById(UUID id) {
+    public TaskResponseDto getTaskById(UUID id) {
         return taskRepository.findById(id)
                 .map(taskMapper::toDto)
                 .orElseThrow(() -> new ServiceException(TASK_NOT_EXIST, id));
@@ -57,21 +63,21 @@ public class TaskServiceImpl implements TaskService {
 
     @Transactional
     @Override
-    public TaskDto update(TaskDto dto, UUID id) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = authentication != null && authentication.getPrincipal() instanceof User ?
-                (User) authentication.getPrincipal() : null;
-
-        checkId(id);
+    public TaskResponseDto update(TaskRequestDto dto, UUID id) {
         checkDto(dto);
+        checkId(id);
 
         Task task = taskRepository.findById(id)
                 .orElseThrow(() -> new ServiceException(TASK_NOT_EXIST, id));
-        if (user == null || !task.getAuthor().getId().equals(user.getId())) {
-            throw new ServiceException(TASK_IS_NOT_FOR_USER, id.toString(), user.getUsername());
-        }
+        taskMapper.updateEntityFromDto(dto, task);
 
-        return taskMapper.toDto(task);
+        return taskMapper.toDto(taskRepository.save(task));
+    }
+
+    private static void checkId(UUID id) {
+        if (id == null) {
+            throw new ServiceException(NULL_ID);
+        }
     }
 
     @Transactional
@@ -83,7 +89,7 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public List<TaskDto> getTasks(TaskFilterDto filterDto) {
+    public List<TaskResponseDto> getTasks(TaskFilterDto filterDto) {
         Specification<Task> spec = TaskFilterFactory.fromFilter(filterDto);
         return taskRepository.findAll(spec).stream()
                 .filter(Objects::nonNull)
@@ -92,23 +98,9 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public Page<TaskDto> search(TaskFilterDto filterDto, Pageable pageable) {
+    public Page<TaskResponseDto> search(TaskFilterDto filterDto, Pageable pageable) {
         Specification<Task> spec = TaskFilterFactory.fromFilter(filterDto);
         return taskRepository.findAll(spec, pageable)
                 .map(taskMapper::toDto);
-    }
-
-    private void checkDto(TaskDto dto) {
-        if (dto == null) {
-            throw new ServiceException(IS_NULL);
-        }
-    }
-
-    private void checkId(UUID id) {
-        if (id == null) {
-            throw new ServiceException(NULL_ID);
-        } else if (!taskRepository.existsById(id)) {
-            throw new ServiceException(TASK_NOT_EXIST, id);
-        }
     }
 }

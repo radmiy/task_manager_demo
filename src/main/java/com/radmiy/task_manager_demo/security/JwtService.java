@@ -1,8 +1,6 @@
-package com.radmiy.task_manager_demo.service.impl;
+package com.radmiy.task_manager_demo.security;
 
 import com.radmiy.task_manager_demo.repository.UserRepository;
-import com.radmiy.task_manager_demo.repository.model.User;
-import com.radmiy.task_manager_demo.service.JwtService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -10,10 +8,8 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RestController;
 
 import java.security.Key;
 import java.util.Date;
@@ -22,9 +18,8 @@ import java.util.Map;
 import java.util.function.Function;
 
 @Slf4j
-@RestController
 @Service
-public class JwtServiceImpl implements JwtService {
+public class JwtService {
 
     @Value("${application.security.jwt.secret-key}")
     private String secretKey;
@@ -32,7 +27,6 @@ public class JwtServiceImpl implements JwtService {
 
     private UserRepository userRepository;
 
-    @Override
     public String generateToken(UserDetails userDetails) {
         Map<String, Object> extraClaims = new HashMap<>();
         extraClaims.put("role", userDetails.getAuthorities().iterator().next().getAuthority());
@@ -46,12 +40,10 @@ public class JwtServiceImpl implements JwtService {
                 .compact();
     }
 
-    @Override
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
 
-    @Override
     public <T> T extractClaim(String token, Function<Claims, T> resolver) {
         final Claims claims = Jwts.parserBuilder()
                 .setSigningKey(getSignInKey()).build()
@@ -59,7 +51,6 @@ public class JwtServiceImpl implements JwtService {
         return resolver.apply(claims);
     }
 
-    @Override
     public boolean isTokenValid(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
         return (username.equals(userDetails.getUsername())) &&

@@ -1,8 +1,8 @@
 package com.radmiy.task_manager_demo.controller;
 
-import com.radmiy.task_manager_demo.dto.TaskDto;
 import com.radmiy.task_manager_demo.dto.TaskFilterDto;
-import com.radmiy.task_manager_demo.dto.UserDto;
+import com.radmiy.task_manager_demo.dto.TaskRequestDto;
+import com.radmiy.task_manager_demo.dto.TaskResponseDto;
 import com.radmiy.task_manager_demo.service.TaskService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,48 +35,48 @@ public class TaskController {
 
     @PostMapping
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    public ResponseEntity<TaskDto> create(@RequestBody TaskDto dto) {
-        log.info("Create Task: {}", dto);
+    public ResponseEntity<TaskResponseDto> create(@RequestBody TaskRequestDto dto) {
+        log.debug("Create Task: {}", dto);
         return ResponseEntity.ok().body(taskService.create(dto));
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    public ResponseEntity<TaskDto> getTaskById(@PathVariable UUID id) {
-        log.info("GET task by id: {}", id);
+    public ResponseEntity<TaskResponseDto> getTaskById(@PathVariable UUID id) {
+        log.debug("GET task by id: {}", id);
         return ResponseEntity.ok().body(taskService.getTaskById(id));
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    public ResponseEntity<TaskDto> update(@RequestBody TaskDto dto, @PathVariable UUID id) {
-        log.info("Update task by id: {}", id);
+    @PreAuthorize("@taskSecurity.canUpdateTask(#id, principal)")
+    public ResponseEntity<TaskResponseDto> update(@RequestBody TaskRequestDto dto, @PathVariable UUID id) {
+        log.debug("Update task by id: {}", id);
         return ResponseEntity.ok().body(taskService.update(dto, id));
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("@taskSecurity.canUpdateTask(#id, principal)")
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
-        log.info("DELETE task by id: {}", id);
+        log.debug("DELETE task by id: {}", id);
         taskService.delete(id);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    public ResponseEntity<List<TaskDto>> getTasks(@ModelAttribute TaskFilterDto filterDto) {
-        log.info("GET tasks");
+    public ResponseEntity<List<TaskResponseDto>> getTasks(@ModelAttribute TaskFilterDto filterDto) {
+        log.debug("GET tasks");
         return ResponseEntity.ok().body(taskService.getTasks(filterDto));
     }
 
     @GetMapping("/search")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    public ResponseEntity<Page<TaskDto>> searchTasks(
+    public ResponseEntity<Page<TaskResponseDto>> searchTasks(
             @ModelAttribute TaskFilterDto filterDto,
             @PageableDefault(page = 0, size = 10, sort = "author", direction = Sort.Direction.ASC)
             Pageable pageable
     ) {
-        log.info("SEARCH tasks");
+        log.debug("SEARCH tasks");
         return ResponseEntity.ok().body(taskService.search(filterDto, pageable));
     }
 }

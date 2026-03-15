@@ -1,4 +1,4 @@
-package com.radmiy.task_manager_demo.config.security;
+package com.radmiy.task_manager_demo.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.radmiy.task_manager_demo.exception.ExceptionMessageModel;

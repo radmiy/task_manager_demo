@@ -1,6 +1,5 @@
-package com.radmiy.task_manager_demo.config.security;
+package com.radmiy.task_manager_demo.security;
 
-import com.radmiy.task_manager_demo.service.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

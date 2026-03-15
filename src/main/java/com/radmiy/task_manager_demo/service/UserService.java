@@ -1,6 +1,6 @@
 package com.radmiy.task_manager_demo.service;
 
-import com.radmiy.task_manager_demo.dto.UserDto;
+import com.radmiy.task_manager_demo.dto.UserAuthDto;
 import com.radmiy.task_manager_demo.repository.model.User;
 
 import java.util.Optional;
@@ -8,9 +8,7 @@ import java.util.Optional;
 public interface UserService {
 
 
-    UserDto register(UserDto dto);
+    void register(UserAuthDto userAuthDto);
 
-    String generateToken(UserDto userDto);
-
-    UserDto findByUsername(String username);
+    String generateToken(UserAuthDto userAuthDto);
 }

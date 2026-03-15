@@ -1,7 +1,8 @@
 package com.radmiy.task_manager_demo.controller;
 
-import com.radmiy.task_manager_demo.dto.UserDto;
+import com.radmiy.task_manager_demo.dto.UserAuthDto;
 import com.radmiy.task_manager_demo.service.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -20,14 +21,14 @@ public class AuthController {
     private final UserService userService;
 
     @PostMapping("/register")
-    public ResponseEntity<String> create(@RequestBody UserDto dto) {
+    public ResponseEntity<String> create(@Valid @RequestBody UserAuthDto dto) {
         log.debug("Register user: {}", dto);
         userService.register(dto);
         return new ResponseEntity<>("User registered successfully", HttpStatus.CREATED);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody UserDto userDto) {
-        return ResponseEntity.ok(userService.generateToken(userDto));
+    public ResponseEntity<String> login(@RequestBody UserAuthDto UserAuthDto) {
+        return ResponseEntity.ok(userService.generateToken(UserAuthDto));
     }
 }

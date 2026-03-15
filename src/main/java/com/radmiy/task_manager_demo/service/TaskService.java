@@ -1,7 +1,8 @@
 package com.radmiy.task_manager_demo.service;
 
-import com.radmiy.task_manager_demo.dto.TaskDto;
+import com.radmiy.task_manager_demo.dto.TaskRequestDto;
 import com.radmiy.task_manager_demo.dto.TaskFilterDto;
+import com.radmiy.task_manager_demo.dto.TaskResponseDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -10,15 +11,15 @@ import java.util.UUID;
 
 public interface TaskService {
 
-    TaskDto create(TaskDto dto);
+    TaskResponseDto create(TaskRequestDto dto);
 
-    TaskDto getTaskById(UUID id);
+    TaskResponseDto getTaskById(UUID id);
 
-    TaskDto update(TaskDto dto, UUID id);
+    TaskResponseDto update(TaskRequestDto dto, UUID id);
 
     void delete(UUID id);
 
-    List<TaskDto> getTasks(TaskFilterDto filterDto);
+    List<TaskResponseDto> getTasks(TaskFilterDto filterDto);
 
-    Page<TaskDto> search(TaskFilterDto filterDto, Pageable pageable);
+    Page<TaskResponseDto> search(TaskFilterDto filterDto, Pageable pageable);
 }

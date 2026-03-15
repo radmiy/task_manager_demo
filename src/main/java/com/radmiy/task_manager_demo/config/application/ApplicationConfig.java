@@ -13,7 +13,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import static com.radmiy.task_manager_demo.exception.ErrorMessage.USER_NOT_EXIST;
+import static com.radmiy.task_manager_demo.exception.ErrorMessage.USERNAME_NOT_EXIST;
 
 @Configuration
 @RequiredArgsConstructor
@@ -24,7 +24,7 @@ public class ApplicationConfig {
     @Bean
     public UserDetailsService userDetailsService() {
         return username -> userRepository.findByUsername(username)
-                .orElseThrow(() -> new ServiceException(USER_NOT_EXIST, username));
+                .orElseThrow(() -> new ServiceException(USERNAME_NOT_EXIST, username));
     }
 
     @Bean

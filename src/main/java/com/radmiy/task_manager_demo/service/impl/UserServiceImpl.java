@@ -1,12 +1,12 @@
 package com.radmiy.task_manager_demo.service.impl;
 
-import com.radmiy.task_manager_demo.dto.UserDto;
+import com.radmiy.task_manager_demo.dto.UserAuthDto;
 import com.radmiy.task_manager_demo.exception.ErrorMessage;
 import com.radmiy.task_manager_demo.exception.ServiceException;
 import com.radmiy.task_manager_demo.mapper.UserMapper;
 import com.radmiy.task_manager_demo.repository.UserRepository;
 import com.radmiy.task_manager_demo.repository.model.User;
-import com.radmiy.task_manager_demo.service.JwtService;
+import com.radmiy.task_manager_demo.security.JwtService;
 import com.radmiy.task_manager_demo.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -17,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import static com.radmiy.task_manager_demo.exception.ErrorMessage.EMAIL_EXIST;
 import static com.radmiy.task_manager_demo.exception.ErrorMessage.IS_NULL;
-import static com.radmiy.task_manager_demo.exception.ErrorMessage.EMAIL_NULL;
+import static com.radmiy.task_manager_demo.exception.ErrorMessage.PASSWORD_NULL;
 import static com.radmiy.task_manager_demo.exception.ErrorMessage.USERNAME_NULL;
 import static com.radmiy.task_manager_demo.exception.ErrorMessage.USER_EXIST;
 
@@ -33,68 +33,74 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     @Override
-    public UserDto register(UserDto userDto) {
-        checkUser(userDto);
-        checkUserExists(userDto);
+    public void register(UserAuthDto userAuthDto) {
+        checkUserExists(userAuthDto);
 
-        userDto.setPassword(passwordEncoder.encode(userDto.getPassword()));
-        User user = userRepository.save(userMapper.toEntity(userDto));
-
-        return userMapper.toDto(user);
+        userAuthDto.setPassword(passwordEncoder.encode(userAuthDto.getPassword()));
+        userRepository.save(userMapper.toEntity(userAuthDto));
     }
 
     @Override
-    public String generateToken(UserDto userDto) {
-        checkUser(userDto);
+    public String generateToken(UserAuthDto userAuthDto) {
+        if (!(userAuthDto.getUsername() != null && !userAuthDto.getUsername().isBlank() ||
+                userAuthDto.getEmail() != null && !userAuthDto.getEmail().isBlank())) {
+            throw new ServiceException(USERNAME_NULL);
+        }
+        if (userAuthDto.getPassword() == null || userAuthDto.getPassword().isBlank()) {
+            throw new ServiceException(PASSWORD_NULL);
+        }
+
+        User user = userAuthDto.getUsername() != null ?
+                userRepository.findByUsername(userAuthDto.getUsername()).orElseThrow(() ->
+                        new ServiceException(ErrorMessage.USERNAME_NOT_EXIST, userAuthDto.getUsername())) :
+                userRepository.findByEmail(userAuthDto.getEmail()).orElseThrow(() ->
+                        new ServiceException(ErrorMessage.EMAIL_NOT_EXIST, userAuthDto.getEmail()));
 
         authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(userDto.getUsername(), userDto.getPassword())
+                new UsernamePasswordAuthenticationToken(
+                        user.getUsername(), userAuthDto.getPassword()
+                )
         );
-
-        User user = userRepository.findByUsername(userDto.getUsername()).orElseThrow(() ->
-                new ServiceException(ErrorMessage.USER_NOT_EXIST, userDto.getUsername()));
         return jwtService.generateToken(user);
     }
 
-    @Override
-    public UserDto findByUsername(String username) {
-        User user = userRepository.findByUsername(username).orElseThrow(() ->
-                new ServiceException(ErrorMessage.USER_NOT_EXIST, username));
-        return userMapper.toDto(user);
-    }
-
-    private void checkUser(UserDto userDto) {
-        checkNotNullUser(userDto);
-        if (userDto.getUsername() == null) {
-            throw new ServiceException(USERNAME_NULL);
-        }
-        if (userDto.getEmail() == null) {
-            throw new ServiceException(EMAIL_NULL);
-        }
-    }
-
-    private static void checkNotNullUser(UserDto userDto) {
-        if (userDto == null) {
+    private static void checkUser(UserAuthDto userAuthDto) {
+        if (userAuthDto == null) {
             throw new ServiceException(IS_NULL);
         }
     }
 
-    private void checkUserExists(UserDto userDto) {
-        if (userRepository.existsByUsername(userDto.getUsername())) {
-            throw new ServiceException(USER_EXIST, userDto.getUsername());
-        }
-        if (userRepository.existsByEmail(userDto.getEmail())) {
-            throw new ServiceException(EMAIL_EXIST, userDto.getEmail());
+    private static void checkUsername(UserAuthDto userAuthDto) {
+        if (userAuthDto.getUsername() == null || userAuthDto.getUsername().isBlank()) {
+            throw new ServiceException(USERNAME_NULL);
         }
     }
 
-    private void checkUsernameAndPassword(UserDto userDto) {
-        checkNotNullUser(userDto);
-        if (userDto.getUsername() == null || userDto.getUsername().isBlank()) {
+    private static void checkEmail(UserAuthDto userAuthDto) {
+        if (userAuthDto.getEmail() == null || userAuthDto.getEmail().isBlank()) {
             throw new ServiceException(USERNAME_NULL);
         }
-        if (userDto.getPassword() == null || userDto.getPassword().isBlank()) {
-            throw new ServiceException(EMAIL_NULL);
+    }
+
+    private static void checkUsernameEmail(UserAuthDto userAuthDto) {
+        if (!(userAuthDto.getUsername() != null && !userAuthDto.getUsername().isBlank() ||
+                userAuthDto.getEmail() != null && !userAuthDto.getEmail().isBlank())) {
+            throw new ServiceException(USERNAME_NULL);
+        }
+    }
+
+    private static void checkPassword(UserAuthDto userAuthDto) {
+        if (userAuthDto.getPassword() == null || userAuthDto.getPassword().isBlank()) {
+            throw new ServiceException(PASSWORD_NULL);
+        }
+    }
+
+    private void checkUserExists(UserAuthDto userAuthDto) {
+        if (userRepository.existsByUsername(userAuthDto.getUsername())) {
+            throw new ServiceException(USER_EXIST, userAuthDto.getUsername());
+        }
+        if (userRepository.existsByEmail(userAuthDto.getEmail())) {
+            throw new ServiceException(EMAIL_EXIST, userAuthDto.getEmail());
         }
     }
 }

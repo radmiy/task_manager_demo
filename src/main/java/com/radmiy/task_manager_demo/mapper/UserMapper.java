@@ -1,8 +1,7 @@
 package com.radmiy.task_manager_demo.mapper;
 
-import com.radmiy.task_manager_demo.dto.TaskDto;
+import com.radmiy.task_manager_demo.dto.UserAuthDto;
 import com.radmiy.task_manager_demo.dto.UserDto;
-import com.radmiy.task_manager_demo.repository.model.Task;
 import com.radmiy.task_manager_demo.repository.model.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
@@ -14,5 +13,5 @@ public interface UserMapper {
 
     UserDto toDto(User task);
 
-    User toEntity(UserDto dto);
+    User toEntity(UserAuthDto dto);
 }
