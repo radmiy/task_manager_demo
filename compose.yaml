@@ -15,7 +15,7 @@ services:
       - pgdata:/var/lib/postgresql/data/pgdata
     restart: unless-stopped
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U admin" ]
+      test: [ "CMD-SHELL", "pg_isready -U admin -d tasksdb" ]
       interval: 5s
       timeout: 5s
       retries: 5
