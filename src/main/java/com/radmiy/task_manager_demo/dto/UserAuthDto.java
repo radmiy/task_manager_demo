@@ -16,7 +16,6 @@ import lombok.ToString;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
 public class UserAuthDto {
 
     @NotBlank(message = "Username cannot be empty")
@@ -34,4 +33,12 @@ public class UserAuthDto {
 
     @NotNull(message = "Role cannot be empty")
     private UserRole role;
+
+    @Override
+    public String toString() {
+        return "UserAuthDto{" +
+                "username='" + username + '\'' +
+                ", email='" + email + '\'' +
+                '}';
+    }
 }
