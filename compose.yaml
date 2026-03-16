@@ -1,1 +1,24 @@
-services: { }
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres
+    container_name: tasksdb
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: tasksdb
+      LC_MESSAGES: en_US.UTF-8
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data/pgdata
+    restart: unless-stopped
+
+  task_manager_demo:
+    image: task_manager_demo:latest
+    ports:
+      - "8080:8080"
+
+volumes:
+  pgdata:

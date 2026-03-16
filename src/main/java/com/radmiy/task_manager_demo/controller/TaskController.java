@@ -4,6 +4,7 @@ import com.radmiy.task_manager_demo.dto.TaskFilterDto;
 import com.radmiy.task_manager_demo.dto.TaskRequestDto;
 import com.radmiy.task_manager_demo.dto.TaskResponseDto;
 import com.radmiy.task_manager_demo.service.TaskService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -35,7 +36,7 @@ public class TaskController {
 
     @PostMapping
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    public ResponseEntity<TaskResponseDto> create(@RequestBody TaskRequestDto dto) {
+    public ResponseEntity<TaskResponseDto> create(@Valid @RequestBody TaskRequestDto dto) {
         log.debug("Create Task: {}", dto);
         return ResponseEntity.ok().body(taskService.create(dto));
     }
@@ -49,7 +50,7 @@ public class TaskController {
 
     @PutMapping("/{id}")
     @PreAuthorize("@taskSecurity.canUpdateTask(#id, principal)")
-    public ResponseEntity<TaskResponseDto> update(@RequestBody TaskRequestDto dto, @PathVariable UUID id) {
+    public ResponseEntity<TaskResponseDto> update(@Valid @RequestBody TaskRequestDto dto, @PathVariable UUID id) {
         log.debug("Update task by id: {}", id);
         return ResponseEntity.ok().body(taskService.update(dto, id));
     }
@@ -64,8 +65,8 @@ public class TaskController {
 
     @GetMapping
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    public ResponseEntity<List<TaskResponseDto>> getTasks(@ModelAttribute TaskFilterDto filterDto) {
-        log.debug("GET tasks");
+    public ResponseEntity<List<TaskResponseDto>> getTaskById(@ModelAttribute TaskFilterDto filterDto) {
+        log.debug("GET task by ID");
         return ResponseEntity.ok().body(taskService.getTasks(filterDto));
     }
 

@@ -19,10 +19,12 @@ public abstract class TaskMapperDecorator implements TaskMapper {
     @Autowired
     protected UserRepository userRepository;
 
+    @Override
     public TaskResponseDto toDto(Task task) {
         return delegate.toDto(task);
     }
 
+    @Override
     public Task toEntity(TaskRequestDto dto) {
         Task task = delegate.toEntity(dto);
         task.setAuthor(userRepository.findById(dto.getAuthor())
@@ -31,6 +33,7 @@ public abstract class TaskMapperDecorator implements TaskMapper {
         return task;
     }
 
+    @Override
     public void updateEntityFromDto(TaskRequestDto dto, @MappingTarget Task task) {
         delegate.updateEntityFromDto(dto, task);
         setAssignee(dto, task);
@@ -38,8 +41,10 @@ public abstract class TaskMapperDecorator implements TaskMapper {
 
     private void setAssignee(TaskRequestDto dto, Task task) {
         if (dto.getAssignee() != null) {
-            task.setAssignee(userRepository.findById(dto.getAssignee())
-                    .orElse(null));
+            task.setAssignee(userRepository.getReferenceById(dto.getAssignee()));
+        } else {
+            task.setAssignee(null);
         }
+
     }
 }
