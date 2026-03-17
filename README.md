@@ -33,7 +33,7 @@
 * src/main/resources/db/changelog — скрипты миграций Liquibase.
 * src/main/resources/static/openapi.yml — описание API.
 
-### 2. Инфраструктура
+### 3. Инфраструктура
 Инфраструктура описанная в *docker-compose.yaml* включает в себя:
 - **PostgreSql**
 - **task-manager-demo app** само приложение
@@ -42,7 +42,7 @@
 
 **PostgreSQL: localhost:5432 (user: admin, pass: secret)**
 
-### 3. Запуск приложения
+### 4. Запуск приложения
 Билд и запуск приложения осуществляется командой
 ```bash
 docker compose up --build -d
@@ -64,7 +64,7 @@ java -Dapplication.security.jwt.secret-key=ZmF6ZWRldi1zZWNyZXQta2V5LWZvci1qd3QtY
 * *datasource.url* - подключение к базе данных. Включает тип БД, хост, порт и имя схемы. По умолчанию jdbc:postgresql://localhost:5432/tasksdb
 * *datasource.username* - пользователь базы данных, по умолчанию *admin*
 * *password=secret* - пароль пользователя, по умолчанию *secret*
-### 4. Документация API
+### 5. Документация API
 После запуска Swagger UI доступен по адресу:
 http://localhost:8080/swagger-ui/index.html
 
