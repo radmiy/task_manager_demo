@@ -7,7 +7,7 @@ import org.springframework.data.jpa.domain.Specification;
 public class TaskFilterFactory {
 
     public static Specification<Task> fromFilter(TaskFilterDto filterDto) {
-        Specification<Task> spec = Specification.unrestricted();
+        Specification<Task> spec = Specification.where(null);
 
         if (filterDto.getStatus() != null) {
             spec = spec.and((root, query, cb) ->

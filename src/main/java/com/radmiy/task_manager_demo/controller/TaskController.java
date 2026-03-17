@@ -65,8 +65,8 @@ public class TaskController {
 
     @GetMapping
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    public ResponseEntity<List<TaskResponseDto>> getTaskById(@ModelAttribute TaskFilterDto filterDto) {
-        log.debug("GET task by ID");
+    public ResponseEntity<List<TaskResponseDto>> getTasks(@ModelAttribute TaskFilterDto filterDto) {
+        log.debug("GET tasks");
         return ResponseEntity.ok().body(taskService.getTasks(filterDto));
     }
 

@@ -1,0 +1,505 @@
+openapi: 3.1.0
+info:
+  title: Task Manager API
+  description: Task management system with JWT authorization
+  version: "1.0"
+servers:
+  - url: http://localhost:8080
+    description: Generated server url
+security:
+  - Bearer Authentication: [ ]
+tags:
+  - name: Authentication
+    description: Operations for user registration and authentication
+components:
+  schemas:
+    UserAuthDto:
+      type: object
+      properties:
+        username:
+          type: string
+          example: "radmiy"
+          maxLength: 20
+          minLength: 3
+        email:
+          type: string
+          example: "radmiy@example.com"
+        password:
+          type: string
+          example: "radmiy"
+          maxLength: 20
+          minLength: 6
+          writeOnly: true
+        role:
+          type: string
+          example: "USER"
+          enum:
+            - USER
+            - ADMIN
+      required:
+        - username
+        - email
+        - password
+        - role
+
+    UserDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        username:
+          type: string
+          example: "radmiy"
+        email:
+          type: string
+          example: "radmiy@example.com"
+
+    TaskRequestDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+          example: "New Task"
+        description:
+          type: string
+          example: "New task description"
+        status:
+          type: string
+          enum:
+            - TODO
+            - IN_PROGRESS
+            - DONE
+        priority:
+          type: string
+          enum:
+            - LOW
+            - MEDIUM
+            - HIGH
+        author:
+          type: string
+          format: uuid
+        assignee:
+          type: string
+          format: uuid
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - title
+        - status
+        - priority
+
+    TaskResponseDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+          example: "New Task"
+        description:
+          type: string
+          example: "New task description"
+        status:
+          type: string
+          enum:
+            - TODO
+            - IN_PROGRESS
+            - DONE
+        priority:
+          type: string
+          enum:
+            - LOW
+            - MEDIUM
+            - HIGH
+        author:
+          $ref: "#/components/schemas/UserDto"
+        assignee:
+          $ref: "#/components/schemas/UserDto"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    TaskFilterDto:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+            - TODO
+            - IN_PROGRESS
+            - DONE
+        author:
+          type: string
+          format: uuid
+        assignee:
+          type: string
+          format: uuid
+
+    Pageable:
+      type: object
+      properties:
+        page:
+          type: integer
+          description: Page number (starts from 0)
+          format: int32
+          minimum: 0
+        size:
+          type: integer
+          description: Number of elements per page
+          format: int32
+          minimum: 1
+        sort:
+          type: array
+          description: Sorting criteria (e.g., 'createdAt,desc')
+          items:
+            type: string
+
+    PageTaskResponseDto:
+      type: object
+      description: Paginated collection of tasks with metadata
+      properties:
+        totalPages:
+          type: integer
+          format: int32
+        totalElements:
+          type: integer
+          description: Total number of tasks available in the database
+          format: int64
+        size:
+          type: integer
+          description: Number of elements per page
+          format: int32
+        content:
+          type: array
+          description: List of tasks for the current page
+          items:
+            $ref: "#/components/schemas/TaskResponseDto"
+        number:
+          type: integer
+          description: Current page number
+          format: int32
+        sort:
+          $ref: "#/components/schemas/SortObject"
+        first:
+          type: boolean
+        last:
+          type: boolean
+        numberOfElements:
+          type: integer
+          description: Number of elements in the current page
+          format: int32
+        pageable:
+          $ref: "#/components/schemas/PageableObject"
+        empty:
+          type: boolean
+
+    PageableObject:
+      type: object
+      properties:
+        offset:
+          type: integer
+          format: int64
+        sort:
+          $ref: "#/components/schemas/SortObject"
+        paged:
+          type: boolean
+        pageNumber:
+          type: integer
+          format: int32
+        pageSize:
+          type: integer
+          format: int32
+        unpaged:
+          type: boolean
+
+    SortObject:
+      type: object
+      properties:
+        empty:
+          type: boolean
+        sorted:
+          type: boolean
+        unsorted:
+          type: boolean
+
+  securitySchemes:
+    Bearer Authentication:
+      type: http
+      name: Bearer Authentication
+      scheme: bearer
+      bearerFormat: JWT
+
+paths:
+  /api/auth/register:
+    post:
+      tags:
+        - Authentication
+      summary: Register a new user
+      description: Creates a new user account with provided username, email, password
+        and role.
+      operationId: create_1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserAuthDto"
+        required: true
+      responses:
+        "201":
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                type: string
+        "400":
+          description: Validation failed or user already exists
+          content:
+            application/json:
+              schema:
+                type: string
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: string
+
+  /api/auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: Authenticate user
+      description: Validates credentials and returns a JWT access token for further
+        authorized requests.
+      operationId: login
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserAuthDto"
+        required: true
+      responses:
+        "201":
+          description: Successfully authenticated, returns JWT token
+          content:
+            "*/*":
+              schema:
+                type: string
+                example: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTcxMDUxNTE1MX0...
+        "400":
+          description: Malformed request body
+          content:
+            application/json:
+              schema:
+                type: string
+        "401":
+          description: Invalid username or password
+          content:
+            application/json:
+              schema:
+                type: string
+
+  /api/tasks:
+    post:
+      tags:
+        - Task
+      operationId: create
+      summary: Create a new task
+      description: Creates a new task and sets the authenticated user as the author.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TaskRequestDto"
+        required: true
+      responses:
+        "201":
+          description: Task successfully created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskResponseDto'
+        "401":
+          description: Authentication failed
+          content:
+            application/json:
+              schema:
+                type: string
+                example: '"message": "Authentication failed"'
+
+    get:
+      tags:
+        - Task
+      operationId: getTasks
+      summary: Get tasks by simple filter
+      description: Retrieves a list of tasks filtered by status, author, or assignee.
+      parameters:
+        - name: filterDto
+          in: query
+          required: false
+          schema:
+            $ref: "#/components/schemas/TaskFilterDto"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TaskResponseDto"
+        "401":
+          description: Authentication failed
+          content:
+            application/json:
+              schema:
+                type: string
+                example: '"message": "Authentication failed"'
+
+
+  /api/tasks/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: The unique identifier (UUID) of the task
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags:
+        - Task
+      operationId: getTaskById
+      summary: Get task by ID
+      responses:
+        "200":
+          description: Task details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TaskResponseDto"
+        "401":
+          description: Authentication failed
+          content:
+            application/json:
+              schema:
+                type: string
+                example: '"message": "Authentication failed"'
+        "404":
+          description: Invalid UUID
+          content:
+            application/json:
+              schema:
+                type: string
+                example: '"message": "Task id=aba5030d-b865-45a7-a9ef-9ab8cd45491d does not exist"'
+
+    put:
+      tags:
+        - Task
+      operationId: update
+      summary: Update task
+      description: Updates an existing task. Only the Author or ADMIN can perform this action.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TaskRequestDto"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/TaskResponseDto"
+        "401":
+          description: Authentication failed
+          content:
+            application/json:
+              schema:
+                type: string
+                example: '"message": "Authentication failed"'
+        "403":
+          description: Access Denied
+          content:
+            application/json:
+              schema:
+                type: string
+                example: '"message": "Access Denied"'
+        "404":
+          description: Invalid UUID
+          content:
+            application/json:
+              schema:
+                type: string
+                example: '"message": "Task id=aba5030d-b865-45a7-a9ef-9ab8cd45491d does not exist"'
+
+    delete:
+      tags:
+        - Task
+      operationId: delete
+      summary: Delete task
+      description: Delete an existing task. Only the Author or ADMIN can perform this action.
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Authentication failed
+          content:
+            application/json:
+              schema:
+                type: string
+                example: '"message": "Authentication failed"'
+        "403":
+          description: Access Denied
+          content:
+            application/json:
+              schema:
+                type: string
+                example: '"message": "Access Denied"'
+        "404":
+          description: Invalid UUID
+          content:
+            application/json:
+              schema:
+                type: string
+                example: '"message": "Task id=aba5030d-b865-45a7-a9ef-9ab8cd45491d does not exist"'
+
+  /api/tasks/search:
+    get:
+      tags:
+        - Task
+      operationId: searchTasks
+      summary: Advanced search with pagination
+      description: Search for tasks using complex filters with page, size, and sort support.
+      parameters:
+        - name: filterDto
+          in: query
+          required: false
+          schema:
+            $ref: "#/components/schemas/TaskFilterDto"
+        - name: pageable
+          in: query
+          required: false
+          schema:
+            $ref: "#/components/schemas/Pageable"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PageTaskResponseDto"
+

@@ -11,6 +11,13 @@ application:
     jwt:
       secret-key: ${JWT_SECRET_KEY:ZmF6ZWRldi1zZWNyZXQta2V5LWZvci1qd3QtYXV0aGVudGljYXRpb24tMjAyNA==}
 
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    url: /openapi.yml
+  api-docs:
+    enabled: true
+
 logging:
   file:
     name: ./logs/application.log
