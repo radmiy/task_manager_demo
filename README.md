@@ -22,7 +22,7 @@
 
 ### 1. Требования 
 *   Docker & Docker Compose
-*   Maven 3.9+ (для локальной сборки)
+*   Maven 3.9+ & Java 17 (для локальной сборки)
 
 ### 2. Структура проекта
 * src/main/java/.../config — настройки Security, JWT и OpenAPI.

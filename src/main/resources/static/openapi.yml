@@ -58,9 +58,6 @@ components:
     TaskRequestDto:
       type: object
       properties:
-        id:
-          type: string
-          format: uuid
         title:
           type: string
           example: "New Task"
@@ -85,12 +82,6 @@ components:
         assignee:
           type: string
           format: uuid
-        createdAt:
-          type: string
-          format: date-time
-        updatedAt:
-          type: string
-          format: date-time
       required:
         - title
         - status
