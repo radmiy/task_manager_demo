@@ -260,7 +260,7 @@ paths:
         "201":
           description: User registered successfully
           content:
-            application/json:
+            "*/*":
               schema:
                 type: string
         "400":
@@ -272,7 +272,7 @@ paths:
         "500":
           description: Internal server error
           content:
-            application/json:
+            "*/*":
               schema:
                 type: string
 

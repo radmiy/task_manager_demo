@@ -1,47 +1,277 @@
-# Read Me First
+# Task Manager Demo
 
-The following was discovered as part of building this project:
+Приложение для демонстрации RESTful-сервиса для управления задачами с разделением ролей (USER, ADMIN) и авторизацией через **JWT** с использованием Spring Boot, обеспечивающий базовый функционал создания, редактирования, назначения и фильтрации задач.
 
-* No Docker Compose services found. As of now, the application won't start! Please add at least one service to
-  the `compose.yaml` file.
+## Описание проекта
+Проект реализует два контроллера для реализации функционала. 
+- **AuthController** - отвечает за регистрацию пользователя в системе и его авторизацию (вхождение в систмеу)
+- **TaskController** - отвечает за работу с пользовательскими задачами (создание, редактирование, удаление и получения списка всех задач).
 
-# Getting Started
+## Технологический стек
+- **Java 17**.
+- **Spring Boot 3.4.3**.
+- **Spring Security** + **JWT**.
+- **Spring Data JPA** + **PostgreSQL/H2**.
+- **MapStruct**: Маппинг сущностей в DTO на этапе компиляции.
+- **JPA Specifications**: Динамический поиск по сложным фильтрам.
+- **Swagger/OpenAPI 3.0** (документация).
+- **JUnit 5**, **Mockito**, **AssertJ** (тестирование).
+- **Docker** & **Docker Compose**
 
-### Reference Documentation
+## Быстрый старт
 
-For further reference, please consider the following sections:
+### 1. Требования 
+*   Docker & Docker Compose
+*   Maven 3.9+ (для локальной сборки)
 
-* [Official Apache Maven documentation](https://maven.apache.org/guides/index.html)
-* [Spring Boot Maven Plugin Reference Guide](https://docs.spring.io/spring-boot/3.5.12-SNAPSHOT/maven-plugin)
-* [Create an OCI image](https://docs.spring.io/spring-boot/3.5.12-SNAPSHOT/maven-plugin/build-image.html)
-* [Spring Data JPA](https://docs.spring.io/spring-boot/3.5.12-SNAPSHOT/reference/data/sql.html#data.sql.jpa-and-spring-data)
-* [Spring Boot DevTools](https://docs.spring.io/spring-boot/3.5.12-SNAPSHOT/reference/using/devtools.html)
-* [Docker Compose Support](https://docs.spring.io/spring-boot/3.5.12-SNAPSHOT/reference/features/dev-services.html#features.dev-services.docker-compose)
-* [Spring REST Docs](https://docs.spring.io/spring-restdocs/docs/current/reference/htmlsingle/)
-* [Spring Security](https://docs.spring.io/spring-boot/3.5.12-SNAPSHOT/reference/web/spring-security.html)
+### 2. Структура проекта
+* src/main/java/.../config — настройки Security, JWT и OpenAPI.
+* src/main/java/.../security — логика авторизации и проверки прав (TaskSecurity).
+* src/main/java/.../dto
+* src/main/java/.../mapper
+* src/main/java/.../repository/model — Entity сущности (User, Task).
+* src/main/resources/db/changelog — скрипты миграций Liquibase.
+* src/main/resources/static/openapi.yml — описание API.
 
-### Guides
+### 2. Инфраструктура
+Инфраструктура описанная в *docker-compose.yaml* включает в себя:
+- **PostgreSql**
+- **task-manager-demo app** само приложение
 
-The following guides illustrate how to use some features concretely:
+**Сервис API: http://localhost:8080**
 
-* [Accessing Data with JPA](https://spring.io/guides/gs/accessing-data-jpa/)
-* [Securing a Web Application](https://spring.io/guides/gs/securing-web/)
-* [Spring Boot and OAuth2](https://spring.io/guides/tutorials/spring-boot-oauth2/)
-* [Authenticating a User with LDAP](https://spring.io/guides/gs/authenticating-ldap/)
+**PostgreSQL: localhost:5432 (user: admin, pass: secret)**
 
-### Docker Compose support
+### 3. Запуск приложения
+Билд и запуск приложения осуществляется командой
+```bash
+docker compose up --build -d
+```
+Это запустит базу PostgreSQL, выполнит миграции Liquibase и поднимет само приложение на порту 8080.
+#### Локальный запуск без развертывания в docker
+Команда сборки проекта
+```bash
+mvn clean package
+```
+В результате будет создан .jar файл (target/task_manager_demo-0.0.1-SNAPSHOT.jar)
+Запуск приложения с установкой переменных окружения
+#### Требование для локального запуска:
+* Установленный и настроенный PostgreSQL 18.1
+```bash
+java -Dapplication.security.jwt.secret-key=ZmF6ZWRldi1zZWNyZXQta2V5LWZvci1qd3QtYXV0aGVudGljYXRpb24tMjAyNA==  -Dspring.datasource.url=jdbc:postgresql://localhost:5432/tasksdb  -Dspring.datasource.username=admin     -Dspring.datasource.password=secret  -jar target/task_manager_demo-0.0.1-SNAPSHOT.jar
+```
+* *secret-key* - секретный ключ необходимый для генерации JWT
+* *datasource.url* - подключение к базе данных. Включает тип БД, хост, порт и имя схемы. По умолчанию jdbc:postgresql://localhost:5432/tasksdb
+* *datasource.username* - пользователь базы данных, по умолчанию *admin*
+* *password=secret* - пароль пользователя, по умолчанию *secret*
+### 4. Документация API
+После запуска Swagger UI доступен по адресу:
+http://localhost:8080/swagger-ui/index.html
 
-This project contains a Docker Compose file named `compose.yaml`.
 
-However, no services were found. As of now, the application won't start!
+## Тестирование API
+Тестовые сценарии (cURL)
+1. Регистрация нового пользователя
+```bash
+   curl --location 'http://localhost:8080/api/auth/register' \
+   --header 'Content-Type: application/json' \
+   --data-raw '{
+   "username": "radmiy",
+   "email": "radmiy@example.com",
+   "password": "password123",
+   "role": "USER"
+   }'
+```
+Ответ:
+```bash
+User registered successfully
+```
+1.2 Регистрация повторная пользователя
+```bash
+   curl --location 'http://localhost:8080/api/auth/register' \
+   --header 'Content-Type: application/json' \
+   --data-raw '{
+   "username": "radmiy",
+   "email": "radmiy@example.com",
+   "password": "password123",
+   "role": "USER"
+   }'
+```
+Ответ:
+```bash
+{"message":"User with username: radmiy exists"}
+```
 
-Please make sure to add at least one service in the `compose.yaml` file.
-
-### Maven Parent overrides
-
-Due to Maven's design, elements are inherited from the parent POM to the project POM.
-While most of the inheritance is fine, it also inherits unwanted elements like `<license>` and `<developers>` from the
-parent.
-To prevent this, the project POM contains empty overrides for these elements.
-If you manually switch to a different parent and actually want the inheritance, you need to remove those overrides.
-
+### 2. Авторизация (Получение токена)
+#### 2.1 Авторизация по *username*
+```bash
+   curl --location 'http://localhost:8080/api/auth/login' \
+   --header 'Content-Type: application/json' \
+   --data '{
+    "username": "radmiy",
+    "password": "password123"
+   }'
+```
+Ответ:
+```bash
+{eyJhbGciOiJIUzI1NiJ9...}
+```
+Авторизация прошла успешно
+#### 2.2 Авторизация по *email*
+```bash
+   curl --location 'http://localhost:8080/api/auth/login' \
+   --header 'Content-Type: application/json' \
+   --data '{
+    "email": "radmiy@example.com",
+    "password": "password123"
+   }'
+```
+Ответ:
+```bash
+{eyJhbGciOiJIUzI1NiJ9...}
+```
+Авторизация прошла успешно
+#### 2.3 Авторизация с некорректными кредами
+```bash
+   curl --location 'http://localhost:8080/api/auth/login' \
+   --header 'Content-Type: application/json' \
+   --data '{
+    "username": "radm",
+    "password": "password123"
+   }'
+```
+Ответ:
+```bash
+{"message": "User with username: radm does not exist"}
+```
+Авторизация упала, так как нет такого пользователя в системе
+### Следующая часть тестового прогона осуществляется с использованием полученного *JWT* в тестовом прогоне *Авторизация*
+### 3. Создание задачи (Нужен Bearer Token)
+```bash
+   curl --location 'http://localhost:8080/api/tasks' \
+   --header 'Content-Type: application/json' \
+   --header 'Authorization: Bearer <YOURS TOKEN>' \
+   --data '{
+    "title": "Fix production bug",
+    "description": "Analyze logs and fix NPE",
+    "status": "TODO",
+    "priority": "HIGH"
+   }'
+```
+Ответ
+```bash
+{
+    "id": "8cd55214-e0ad-4791-97a5-040a76ec0e9f",
+    "title": "Fix production bug",
+    "description": "Analyze logs and fix NPE",
+    "status": "TODO",
+    "priority": "HIGH",
+    "author": {
+        "id": "22199db8-ffe5-4ff7-a6b1-f4b06abf9d06",
+        "username": "radmiy",
+        "email": "radmiy@example.com"
+    },
+    "assignee": null,
+    "createdAt": "2026-03-17T13:17:49.515845Z",
+    "updatedAt": "2026-03-17T13:17:49.515879Z"
+}
+```
+Любой авторизированный пользователь может создавать задачи, при этом в поле *автор* будет записан авторизированный пользователь, полученный системой из контекста запроса. Так же в базу данных запишуться автосоздаваемые поля *createdAt* и *updatedAt*. 
+### 4. Поиск задач с фильтрацией
+```bash
+   curl --location 'http://localhost:8080/api/tasks?status=TODO&author=3ed395a8-991a-4445-8103-29dc0420a738' \
+   --header 'Content-Type: application/json' \
+   --header 'Authorization: Bearer <YOURS TOKEN>' \
+   --data ''
+```
+Ответ:
+```bash
+[
+    {
+        "id": "ac26aac7-13e9-490f-80c3-13341c39627e",
+        "title": "Fix production bug",
+        "description": "Analyze logs and fix NPE",
+        "status": "TODO",
+        "priority": "HIGH",
+        "author": {
+            "id": "3ed395a8-991a-4445-8103-29dc0420a738",
+            "username": "radmiy",
+            "email": "radmiy@example.com"
+        },
+        "assignee": null,
+        "createdAt": "2026-03-17T13:28:00.517617Z",
+        "updatedAt": "2026-03-17T13:28:00.517617Z"
+    }
+]
+```
+Авторизированный пользователь может читать задачи других пользователей, но не иметь возможность их редактирования и удаления. Исключение составляет только пользователь с ролью *ADMIN*, он может удалять и изменять чужие задачи.
+### 5. Изменение задачи
+#### 5.1. Залогинившийся пользователь изменяет свою задачу
+```bash
+    curl --location --request PUT 'http://localhost:8080/api/tasks/ac26aac7-13e9-490f-80c3-13341c39627e' \
+    --header 'Content-Type: application/json' \
+    --header 'Authorization: Bearer <YOURS TOKEN>' \
+    --data '{
+       "title": "Fix production bug",
+       "description": "Analyze logs and fix NPE",
+       "status": "IN_PROGRESS",
+       "priority": "HIGH",
+       "author": "3ed395a8-991a-4445-8103-29dc0420a738",
+       "assignee": "3ed395a8-991a-4445-8103-29dc0420a738"
+    }'
+```
+Ответ:
+```bash
+{
+    "id": "ac26aac7-13e9-490f-80c3-13341c39627e",
+    "title": "Fix production bug",
+    "description": "Analyze logs and fix NPE",
+    "status": "IN_PROGRESS",
+    "priority": "HIGH",
+    "author": {
+        "id": "3ed395a8-991a-4445-8103-29dc0420a738",
+        "username": "radmiy",
+        "email": "radmiy@example.com"
+    },
+    "assignee": {
+        "id": "3ed395a8-991a-4445-8103-29dc0420a738",
+        "username": "radmiy",
+        "email": "radmiy@example.com"
+    },
+    "createdAt": "2026-03-17T13:28:00.517617Z",
+    "updatedAt": "2026-03-17T16:46:39.909598+03:00"
+}
+```
+Авторизированный пользователь имеет возможномть изменять свою задачу.
+#### 5.2. Залогинившийся пользователь изменяет чужую задачу
+```bash
+    curl --location --request PUT 'http://localhost:8080/api/tasks/4e3ce1a5-ffb2-4568-bb4d-6bd8eb401195' \
+    --header 'Content-Type: application/json' \
+    --header 'Authorization: Bearer <YOURS TOKEN>' \
+    --data '{
+       "title": "Fix production bug",
+       "description": "Analyze logs and fix NPE",
+       "status": "IN_PROGRESS",
+       "priority": "HIGH",
+       "author": "3ed395a8-991a-4445-8103-29dc0420a738",
+       "assignee": "3ed395a8-991a-4445-8103-29dc0420a738"
+   }'
+```
+Ответ:
+```bash
+{
+    "message": "Access Denied"
+}
+```
+Доступ запрещен для действий пользователя над чужими задачами
+### 6. Удаление задачи
+```bash
+curl --location --request DELETE 'http://localhost:8080/api/tasks/ac26aac7-13e9-490f-80c3-13341c39627e' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer <YOURS TOKEN>'
+```
+Ответ:
+```bash
+   204 No Content
+```
+Авторизированный пользователь может удалять свою задачу.

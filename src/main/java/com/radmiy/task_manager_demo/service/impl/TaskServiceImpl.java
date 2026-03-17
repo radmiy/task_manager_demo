@@ -71,7 +71,7 @@ public class TaskServiceImpl implements TaskService {
                 .orElseThrow(() -> new ServiceException(TASK_NOT_EXIST, id));
         taskMapper.updateEntityFromDto(dto, task);
 
-        return taskMapper.toDto(taskRepository.save(task));
+        return taskMapper.toDto(taskRepository.saveAndFlush(task));
     }
 
     private static void checkId(UUID id) {
