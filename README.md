@@ -205,8 +205,34 @@ User registered successfully
 ]
 ```
 Авторизированный пользователь может читать задачи других пользователей, но не иметь возможность их редактирования и удаления. Исключение составляет только пользователь с ролью *ADMIN*, он может удалять и изменять чужие задачи.
-### 5. Изменение задачи
-#### 5.1. Залогинившийся пользователь изменяет свою задачу
+### 5. Получение задачи по ID
+```bash
+   curl --location 'http://localhost:8080/api/tasks/ac26aac7-13e9-490f-80c3-13341c39627e' \
+--header 'Authorization: Bearer <TOKEN>'
+```
+Ответ:
+```bash
+[
+    {
+        "id": "ac26aac7-13e9-490f-80c3-13341c39627e",
+        "title": "Fix production bug",
+        "description": "Analyze logs and fix NPE",
+        "status": "TODO",
+        "priority": "HIGH",
+        "author": {
+            "id": "3ed395a8-991a-4445-8103-29dc0420a738",
+            "username": "radmiy",
+            "email": "radmiy@example.com"
+        },
+        "assignee": null,
+        "createdAt": "2026-03-17T13:28:00.517617Z",
+        "updatedAt": "2026-03-17T13:28:00.517617Z"
+    }
+]
+```
+Авторизированный пользователь может читать задачи других пользователей, но не иметь возможность их редактирования и удаления. Исключение составляет только пользователь с ролью *ADMIN*, он может удалять и изменять чужие задачи.
+### 6. Изменение задачи
+#### 6.1. Залогинившийся пользователь изменяет свою задачу
 ```bash
     curl --location --request PUT 'http://localhost:8080/api/tasks/ac26aac7-13e9-490f-80c3-13341c39627e' \
     --header 'Content-Type: application/json' \
@@ -243,7 +269,7 @@ User registered successfully
 }
 ```
 Авторизированный пользователь имеет возможномть изменять свою задачу.
-#### 5.2. Залогинившийся пользователь изменяет чужую задачу
+#### 6.2. Залогинившийся пользователь изменяет чужую задачу
 ```bash
     curl --location --request PUT 'http://localhost:8080/api/tasks/4e3ce1a5-ffb2-4568-bb4d-6bd8eb401195' \
     --header 'Content-Type: application/json' \
@@ -264,7 +290,7 @@ User registered successfully
 }
 ```
 Доступ запрещен для действий пользователя над чужими задачами
-### 6. Удаление задачи
+### 7. Удаление задачи
 ```bash
 curl --location --request DELETE 'http://localhost:8080/api/tasks/ac26aac7-13e9-490f-80c3-13341c39627e' \
 --header 'Content-Type: application/json' \
