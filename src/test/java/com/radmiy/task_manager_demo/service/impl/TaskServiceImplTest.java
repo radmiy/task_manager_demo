@@ -4,9 +4,7 @@ import com.radmiy.task_manager_demo.dto.TaskFilterDto;
 import com.radmiy.task_manager_demo.dto.TaskRequestDto;
 import com.radmiy.task_manager_demo.dto.TaskResponseDto;
 import com.radmiy.task_manager_demo.dto.UserDto;
-import com.radmiy.task_manager_demo.mapper.TaskMapper;
 import com.radmiy.task_manager_demo.mapper.TaskMapperImpl;
-import com.radmiy.task_manager_demo.mapper.TaskMapperImpl_;
 import com.radmiy.task_manager_demo.mapper.UserMapper;
 import com.radmiy.task_manager_demo.repository.TaskRepository;
 import com.radmiy.task_manager_demo.repository.UserRepository;
@@ -15,14 +13,11 @@ import com.radmiy.task_manager_demo.repository.model.TaskPriority;
 import com.radmiy.task_manager_demo.repository.model.TaskStatus;
 import com.radmiy.task_manager_demo.repository.model.User;
 import com.radmiy.task_manager_demo.repository.model.UserRole;
-import com.radmiy.task_manager_demo.repository.specification.TaskFilterFactory;
-import com.radmiy.task_manager_demo.service.TaskService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
@@ -30,7 +25,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.List;
 import java.util.Optional;
@@ -99,12 +93,12 @@ class TaskServiceImplTest {
         when(taskMapper.toDto(any())).thenReturn(taskResponseDto);
 
         //when
-        TaskResponseDto actual = taskService.getTaskById(taskRequestDto.getId());
+        TaskResponseDto actual = taskService.getTaskById(task.getId());
 
         //then
         assertNotNull(actual);
-        assertEquals(taskRequestDto.getId(), actual.getId());
-        verify(taskRepository).findById(taskRequestDto.getId());
+        assertEquals(task.getId(), actual.getId());
+        verify(taskRepository).findById(task.getId());
         verify(taskMapper).toDto(task);
 
     }
@@ -118,7 +112,7 @@ class TaskServiceImplTest {
         when(taskMapper.toDto(any())).thenReturn(taskResponseDto);
 
         //when
-        TaskResponseDto actual = taskService.update(taskRequestDto, taskRequestDto.getId());
+        TaskResponseDto actual = taskService.update(taskRequestDto, task.getId());
 
         //then
         assertNotNull(actual);
@@ -133,7 +127,7 @@ class TaskServiceImplTest {
         doNothing().when(taskRepository).deleteById(any());
 
         //when
-        taskService.delete(taskRequestDto.getId());
+        taskService.delete(task.getId());
 
         //then
         verify(taskRepository).deleteById(any());
@@ -187,7 +181,6 @@ class TaskServiceImplTest {
                 .build();
 
         taskRequestDto = TaskRequestDto.builder()
-                .id(task.getId())
                 .title(task.getTitle())
                 .description(task.getDescription())
                 .status(task.getStatus())

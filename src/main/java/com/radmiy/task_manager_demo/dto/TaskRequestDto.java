@@ -20,8 +20,6 @@ import java.util.UUID;
 @ToString
 public class TaskRequestDto {
 
-    private UUID id;
-
     @NotBlank
     private String title;
 
@@ -35,6 +33,4 @@ public class TaskRequestDto {
 
     private UUID author;
     private UUID assignee;
-    private OffsetDateTime createdAt;
-    private OffsetDateTime updatedAt;
 }

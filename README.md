@@ -150,7 +150,7 @@ User registered successfully
 ```bash
    curl --location 'http://localhost:8080/api/tasks' \
    --header 'Content-Type: application/json' \
-   --header 'Authorization: Bearer <YOURS TOKEN>' \
+   --header 'Authorization: Bearer <TOKEN>' \
    --data '{
     "title": "Fix production bug",
     "description": "Analyze logs and fix NPE",
@@ -181,7 +181,7 @@ User registered successfully
 ```bash
    curl --location 'http://localhost:8080/api/tasks?status=TODO&author=3ed395a8-991a-4445-8103-29dc0420a738' \
    --header 'Content-Type: application/json' \
-   --header 'Authorization: Bearer <YOURS TOKEN>' \
+   --header 'Authorization: Bearer <TOKEN>' \
    --data ''
 ```
 Ответ:
@@ -210,7 +210,7 @@ User registered successfully
 ```bash
     curl --location --request PUT 'http://localhost:8080/api/tasks/ac26aac7-13e9-490f-80c3-13341c39627e' \
     --header 'Content-Type: application/json' \
-    --header 'Authorization: Bearer <YOURS TOKEN>' \
+    --header 'Authorization: Bearer <TOKEN>' \
     --data '{
        "title": "Fix production bug",
        "description": "Analyze logs and fix NPE",
@@ -247,7 +247,7 @@ User registered successfully
 ```bash
     curl --location --request PUT 'http://localhost:8080/api/tasks/4e3ce1a5-ffb2-4568-bb4d-6bd8eb401195' \
     --header 'Content-Type: application/json' \
-    --header 'Authorization: Bearer <YOURS TOKEN>' \
+    --header 'Authorization: Bearer <TOKEN>' \
     --data '{
        "title": "Fix production bug",
        "description": "Analyze logs and fix NPE",
@@ -268,7 +268,7 @@ User registered successfully
 ```bash
 curl --location --request DELETE 'http://localhost:8080/api/tasks/ac26aac7-13e9-490f-80c3-13341c39627e' \
 --header 'Content-Type: application/json' \
---header 'Authorization: Bearer <YOURS TOKEN>'
+--header 'Authorization: Bearer <TOKEN>'
 ```
 Ответ:
 ```bash
