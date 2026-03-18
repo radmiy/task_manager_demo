@@ -6,7 +6,14 @@
 Проект реализует два контроллера для реализации функционала. 
 - **AuthController** - отвечает за регистрацию пользователя в системе и его авторизацию (вхождение в систмеу)
 - **TaskController** - отвечает за работу с пользовательскими задачами (создание, редактирование, удаление и получения списка всех задач).
+- **JwtService** - сервис использует Spring Security в связке с JSON Web Token (JWT) для обеспечения бесконтейнерной (Stateless) аутентификации.
 
+#### JWT Требования
+Каждый сгенерированный токен соответствует стандарту RFC 7519 и содержит следующие обязательные данные (Claims):
+- **Subject (sub)**: Имя пользователя (username), используемое для идентификации в системе.
+- **Role (role)**: Текущая роль пользователя (ROLE_USER или ROLE_ADMIN), позволяющая проверять права доступа без дополнительного обращения к БД.
+- **Issued At (iat)**: Время создания токена.
+- **Expiration Time (exp)**: Срок действия токена. По умолчанию установлен на 24 часа (86,400,000 мс).
 ## Технологический стек
 - **Java 17**.
 - **Spring Boot 3.4.3**.
@@ -54,9 +61,11 @@ docker compose up --build -d
 mvn clean package
 ```
 В результате будет создан .jar файл (target/task_manager_demo-0.0.1-SNAPSHOT.jar)
-Запуск приложения с установкой переменных окружения
 #### Требование для локального запуска:
 * Установленный и настроенный PostgreSQL 18.1
+
+Запуск приложения с установкой переменных окружения
+
 ```bash
 java -Dapplication.security.jwt.secret-key=ZmF6ZWRldi1zZWNyZXQta2V5LWZvci1qd3QtYXV0aGVudGljYXRpb24tMjAyNA==  -Dspring.datasource.url=jdbc:postgresql://localhost:5432/tasksdb  -Dspring.datasource.username=admin     -Dspring.datasource.password=secret  -jar target/task_manager_demo-0.0.1-SNAPSHOT.jar
 ```
